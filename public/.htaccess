@@ -1,0 +1,10 @@
+# Las rutas las resuelve React Router: todo lo que no sea un archivo real
+# se sirve con index.html para que /enero/ o /promesas-marzo/ funcionen al recargar.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
