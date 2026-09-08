@@ -31,6 +31,7 @@ export function Apoyo() {
 
             <a className="gcard gcard--paypal" href={LINKS.paypal} target="_blank" rel="noopener noreferrer">
               <Icon name="paypal" className="gcard__i" />
+              <img className="gcard__logoimg" src="/assets/img/logo-paypal.png" alt="" width={1024} height={358} decoding="async" />
               <div>
                 <strong>PayPal</strong>
                 <span>paypal.me/wenddyneciosup</span>
@@ -39,7 +40,10 @@ export function Apoyo() {
             </a>
 
             <div className="gcard">
-              <span className="gcard__logo gcard__logo--zelle">Z</span>
+              <span className="gcard__logo gcard__logo--zelle">
+                <Icon name="zelle" />
+              </span>
+              <img className="gcard__logoimg" src="/assets/img/logo-zelle.png" alt="" width={1024} height={358} decoding="async" />
               <div>
                 <strong>Zelle</strong>
                 <span>{EMAIL}</span>
@@ -50,7 +54,10 @@ export function Apoyo() {
             </div>
 
             <div className="gcard">
-              <span className="gcard__logo gcard__logo--wu">WU</span>
+              <span className="gcard__logo gcard__logo--wu">
+                <Icon name="westernunion" />
+              </span>
+              <img className="gcard__logoimg" src="/assets/img/logo-western.png" alt="" width={1024} height={358} decoding="async" />
               <div>
                 <strong>Western Union</strong>
                 <span>Claudia Wenddy Neciosup Morales · Lima, Perú</span>

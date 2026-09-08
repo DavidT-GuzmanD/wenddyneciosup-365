@@ -6,6 +6,8 @@ export const ICON_NAMES = [
   'instagram',
   'facebook',
   'paypal',
+  'zelle',
+  'westernunion',
   'play',
   'pause',
   'arrow',

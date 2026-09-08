@@ -138,14 +138,8 @@ body::after{
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* ---------- Progress + cursor ---------- */
+/* ---------- Barra de progreso ---------- */
 .progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:1000;background:linear-gradient(90deg,var(--coral),var(--gold));box-shadow:0 0 14px rgba(242,84,94,.6)}
-.cursor-glow{
-  position:fixed;top:0;left:0;transform:translate3d(-50vw,-50vh,0);width:420px;height:420px;margin:-210px 0 0 -210px;pointer-events:none;z-index:1;
-  background:radial-gradient(circle,rgba(242,84,94,.11),transparent 62%);opacity:0;transition:opacity .5s;
-  mix-blend-mode:multiply;
-}
-body.has-cursor .cursor-glow{opacity:1}
 
 /* ---------- Header ---------- */
 .hdr{position:fixed;inset:0 0 auto;z-index:900;transition:transform .5s var(--ease),background .4s,box-shadow .4s,backdrop-filter .4s}
@@ -419,16 +413,6 @@ body.lock .burger{background:#fff;border-color:#fff}
 
 /* ---------- Reto ---------- */
 .sec--reto{background:var(--cream)}
-.months{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
-.mcard{position:relative;display:flex;flex-direction:column;gap:2px;padding:22px 20px 20px;border-radius:var(--r-m);
-  background:#fff;border:1px solid rgba(43,29,34,.06);overflow:hidden;transition:.45s var(--ease);box-shadow:var(--sh-s)}
-.mcard em{font-family:var(--f-disp);font-style:normal;font-size:.8rem;letter-spacing:.1em;color:var(--gold);font-weight:700}
-.mcard strong{font-family:var(--f-disp);font-size:1.22rem;color:var(--ink);font-weight:600}
-.mcard .ico{position:absolute;right:18px;bottom:18px;width:1.1em;height:1.1em;color:var(--coral);opacity:0;transform:translateX(-8px);transition:.45s var(--ease)}
-.mcard::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(242,84,94,.1),rgba(224,178,101,.14));opacity:0;transition:opacity .45s}
-.mcard:hover{transform:translateY(-6px);box-shadow:var(--sh-m);border-color:rgba(242,84,94,.3)}
-.mcard:hover::before{opacity:1}
-.mcard:hover .ico{opacity:1;transform:none}
 
 .promesas{margin-top:30px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;padding:22px 26px;border-radius:var(--r-l);
   background:linear-gradient(120deg,rgba(224,178,101,.16),rgba(242,84,94,.09));border:1px solid rgba(224,178,101,.3)}
@@ -438,11 +422,19 @@ body.lock .burger{background:#fff;border-color:#fff}
 .promesas__list a{padding:7px 15px;border-radius:99px;background:rgba(255,255,255,.8);font-size:.85rem;font-weight:500;transition:.35s var(--ease)}
 .promesas__list a:hover{background:var(--ink);color:#fff;transform:translateY(-2px)}
 
-.cert{margin-top:clamp(38px,5vw,60px);display:grid;grid-template-columns:.42fr .58fr;gap:clamp(28px,4vw,54px);align-items:center;
-  padding:clamp(26px,3.5vw,44px);border-radius:var(--r-xl);background:linear-gradient(120deg,var(--ink),#3B222B);color:#fff;overflow:hidden;position:relative}
-.cert__img{border-radius:var(--r-m);box-shadow:var(--sh-l)}
-.cert__copy h3{font-size:clamp(1.6rem,3vw,2.3rem);margin-bottom:12px}
-.cert__copy p{color:rgba(255,255,255,.7);max-width:46ch}
+/* La información va directa sobre el fondo de la sección, sin recuadro. */
+.reto{margin-top:clamp(30px,4vw,54px);display:grid;grid-template-columns:.44fr .56fr;
+  gap:clamp(28px,5vw,66px);align-items:center}
+.reto__img{width:100%;border-radius:var(--r-l);box-shadow:var(--sh-l)}
+.reto__copy h3{font-size:clamp(1.7rem,3.2vw,2.5rem);color:var(--ink);margin-bottom:14px}
+.reto__copy p{color:var(--muted);max-width:46ch;font-size:1.05rem;margin-bottom:26px}
+/* El botón del certificado es una imagen: escala con el ancho disponible
+   manteniendo su proporción (1536x338). */
+.cert-btn{display:block;width:min(100%,380px);border-radius:14px;overflow:hidden;
+  transition:transform .4s var(--ease),box-shadow .4s var(--ease)}
+.cert-btn img{display:block;width:100%;height:auto;aspect-ratio:1536/338;object-fit:contain}
+.cert-btn:hover{transform:translateY(-4px);box-shadow:var(--sh-m)}
+.cert-btn:active{transform:scale(.98)}
 
 /* ---------- Autora ---------- */
 .sec--autora{background:linear-gradient(180deg,var(--cream),var(--sand))}
@@ -485,8 +477,19 @@ body.lock .burger{background:#fff;border-color:#fff}
 .gcard__a{width:1.2em;height:1.2em;color:var(--coral);transition:transform .4s var(--ease)}
 .gcard--paypal:hover .gcard__a{transform:translateX(5px)}
 .gcard__logo{width:44px;height:44px;flex:none;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:1.02rem;color:#fff;letter-spacing:-.02em}
+.gcard__logo .ico{width:1.55em;height:1.55em}
 .gcard__logo--zelle{background:#6D1ED4}
-.gcard__logo--wu{background:#FFDD00;color:#1B1014;font-size:.9rem}
+.gcard__logo--wu{background:#FFDD00;color:#1B1014}
+.gcard__logo--wu .ico{width:2em;height:2em}
+
+/* En navegador de escritorio se muestran los logotipos completos de cada
+   plataforma; en tablet y móvil se quedan los iconos compactos, que caben
+   en la fila sin robarle sitio al dato de la cuenta. */
+.gcard__logoimg{display:none;flex:none;width:132px;height:auto;border-radius:10px}
+@media (min-width:901px){
+  .gcard__logo,.gcard__i{display:none}
+  .gcard__logoimg{display:block}
+}
 .copy{width:40px;height:40px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--sand);color:var(--ink);transition:.35s var(--ease)}
 .copy:hover{background:var(--ink);color:#fff}
 .qr{background:linear-gradient(150deg,#fff,var(--sand));border-radius:var(--r-l);padding:22px;text-align:center;box-shadow:var(--sh-s);border:1px solid rgba(43,29,34,.05)}
@@ -552,19 +555,16 @@ body.lock .burger{background:#fff;border-color:#fff}
 .split .w{display:inline-block;overflow:hidden;vertical-align:top;padding:.14em 0 .22em;margin:-.14em 0 -.22em}
 .split .w i{display:inline-block;font-style:inherit;transform:translateY(105%);transition:transform .85s var(--ease)}
 .split.in .w i{transform:none}
-.mcard{opacity:0;transform:translateY(24px);transition:opacity .7s var(--ease),transform .7s var(--ease),box-shadow .45s,border-color .45s}
-.mcard.in{opacity:1;transform:none}
 
 /* ---------- Responsive ---------- */
 @media (max-width:1080px){
   .nav{display:none}
   .burger{display:flex}
-  .months{grid-template-columns:repeat(4,1fr)}
-  .ftr__in{grid-template-columns:1fr 1fr}
+    .ftr__in{grid-template-columns:1fr 1fr}
 }
 @media (max-width:900px){
   body{font-size:16px}
-  .hero__in,.grid-2,.digital,.pod,.give,.cert{grid-template-columns:1fr}
+  .hero__in,.grid-2,.digital,.pod,.give,.reto{grid-template-columns:1fr}
   .grid-2--rev .autora__media{order:0}
   .hero__art{order:-1;margin-bottom:6px;gap:14px}
   .hero__book{width:min(76%,340px)}
@@ -573,9 +573,10 @@ body.lock .burger{background:#fff;border-color:#fff}
   .chip strong{font-size:1.15rem}
   .stats__grid{grid-template-columns:repeat(2,1fr);gap:8px}
   .stat:nth-child(3)::before{display:none}
-  .cert{text-align:center}
-  .cert__copy p{margin-inline:auto}
-  .cert__img{max-width:340px;margin-inline:auto}
+  .reto{text-align:center}
+  .reto__copy p{margin-inline:auto}
+  .reto__img{max-width:360px;margin-inline:auto}
+  .reto .row-cta{justify-content:center}
   .autora__mini{position:static;width:100%;margin-top:16px;border-width:0}
   .badges{position:static;margin-top:16px;width:fit-content}
   .autora__media{padding-bottom:0}
@@ -585,8 +586,7 @@ body.lock .burger{background:#fff;border-color:#fff}
 }
 @media (max-width:620px){
   .wrap{width:calc(100% - 32px)}
-  .months{grid-template-columns:repeat(2,1fr)}
-  .pod__links{grid-template-columns:1fr}
+    .pod__links{grid-template-columns:1fr}
   .ftr__in{grid-template-columns:1fr}
   .ftr__base{flex-direction:column;text-align:center;align-items:center}
   .sec-head--row{flex-direction:column;align-items:flex-start}
@@ -601,6 +601,6 @@ body.lock .burger{background:#fff;border-color:#fff}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}
-  .reveal,.mcard{opacity:1;transform:none}
+  .reveal{opacity:1;transform:none}
   .split .w i{transform:none}
 }

@@ -5,7 +5,6 @@ import { Header } from './Header'
 import { Drawer } from './Drawer'
 import { Footer } from './Footer'
 import { Preloader } from './Preloader'
-import { CursorGlow } from './CursorGlow'
 import { BackToTop } from './BackToTop'
 import { useScrollEffects } from '../hooks/useScrollEffects'
 import { scrollToId } from '../lib/scroll'
@@ -51,7 +50,6 @@ export function Layout() {
       <IconSprite />
       <Preloader />
       <div className="progress" style={{ width: `${progress * 100}%` }} aria-hidden="true" />
-      <CursorGlow />
 
       <Header
         stuck={stuck}
