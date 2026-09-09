@@ -4,11 +4,17 @@ import { Reveal } from '../Reveal'
 import { SplitText } from '../SplitText'
 import { TESTIMONIALS } from '../../data/site'
 import { useReducedMotion } from '../../hooks/useReducedMotion'
+import { useMediaQuery } from '../../hooks/useMediaQuery'
 
-/** Carrusel con avance automático que se detiene en cuanto alguien interactúa. */
+/**
+ * En escritorio los seis testimonios se ven de golpe, en dos filas de tres.
+ * En tablet y móvil no caben, así que ahí sí es un carrusel con avance
+ * automático que se detiene en cuanto alguien interactúa.
+ */
 export function Testimonials() {
   const row = useRef<HTMLDivElement>(null)
   const reduced = useReducedMotion()
+  const esCarrusel = useMediaQuery('(max-width: 900px)')
   const [atStart, setAtStart] = useState(true)
   const [atEnd, setAtEnd] = useState(false)
   const stopped = useRef(false)
@@ -36,7 +42,7 @@ export function Testimonials() {
 
   useEffect(() => {
     const el = row.current
-    if (!el) return
+    if (!el || !esCarrusel) return
     sync()
 
     let timer: number | undefined
@@ -80,7 +86,7 @@ export function Testimonials() {
       el.removeEventListener('pointerenter', stop)
       el.removeEventListener('pointerleave', start)
     }
-  }, [reduced, step, sync])
+  }, [reduced, step, sync, esCarrusel])
 
   return (
     <section className="sec sec--tst" id="testimonios">
@@ -93,14 +99,16 @@ export function Testimonials() {
             </Reveal>
             <SplitText className="h2">Lo que dicen del libro</SplitText>
           </div>
-          <Reveal className="tst__nav" d={1}>
-            <button className="rnd" aria-label="Anterior" onClick={() => go(-1)} disabled={atStart}>
-              <Icon name="chevron" className="ico--l" />
-            </button>
-            <button className="rnd" aria-label="Siguiente" onClick={() => go(1)} disabled={atEnd}>
-              <Icon name="chevron" className="ico--r" />
-            </button>
-          </Reveal>
+          {esCarrusel && (
+            <Reveal className="tst__nav" d={1}>
+              <button className="rnd" aria-label="Anterior" onClick={() => go(-1)} disabled={atStart}>
+                <Icon name="chevron" className="ico--l" />
+              </button>
+              <button className="rnd" aria-label="Siguiente" onClick={() => go(1)} disabled={atEnd}>
+                <Icon name="chevron" className="ico--r" />
+              </button>
+            </Reveal>
+          )}
         </header>
       </div>
 

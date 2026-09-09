@@ -344,6 +344,15 @@ body.lock .burger{background:#fff;border-color:#fff}
 .tcard footer span{display:block;font-size:.76rem;color:var(--muted);letter-spacing:.03em;line-height:1.4}
 .tst__nav{display:flex;gap:10px}
 
+/* En escritorio no hay carrusel: los seis testimonios caben en dos filas
+   de tres, con las tarjetas igualadas en altura por la propia rejilla. */
+@media (min-width:901px){
+  .tst__row{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;
+    width:min(100% - 44px,var(--wrap));margin-inline:auto;padding:14px 0 10px;
+    overflow:visible;scroll-snap-type:none}
+  .tcard{flex:none;scroll-snap-align:none}
+}
+
 /* ---------- 365 digital ---------- */
 .sec--digital{background:linear-gradient(180deg,var(--cream),var(--blush) 45%,var(--cream))}
 .digital{display:grid;grid-template-columns:.95fr 1.05fr;gap:clamp(34px,5vw,70px);align-items:center}
