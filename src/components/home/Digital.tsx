@@ -1,8 +1,7 @@
 import { Icon } from '../Icon'
 import { Reveal } from '../Reveal'
 import { SplitText } from '../SplitText'
-import { MagneticA } from '../MagneticLink'
-import { DIGITAL_FEATURES, LINKS } from '../../data/site'
+import { DIGITAL_FEATURES } from '../../data/site'
 
 export function Digital() {
   return (
@@ -34,7 +33,6 @@ export function Digital() {
           <div className="dcards">
             {DIGITAL_FEATURES.map((f, i) => (
               <Reveal as="article" className="dcard" key={f.title} d={i + 1}>
-                <span className="dcard__n">{String(i + 1).padStart(2, '0')}</span>
                 <Icon name={f.icon} className="dcard__i" />
                 <h3>{f.title}</h3>
                 <p>{f.text}</p>
@@ -48,10 +46,15 @@ export function Digital() {
             ¡Haz de cada día un día con Dios! Con <strong>#365conDios</strong> estarás en el camino
             hacia una conexión más profunda con el eterno.
           </p>
-          <MagneticA className="btn btn--primary" href={LINKS.amazon365}>
-            <Icon name="amazon" />
-            <span>Descargar en Amazon</span>
-          </MagneticA>
+          <img
+            className="band__img"
+            src="/assets/img/tablet-2023.jpg"
+            alt="365 con Dios abierto en una tablet, junto a un móvil con el podcast"
+            width={768}
+            height={595}
+            loading="lazy"
+            decoding="async"
+          />
         </Reveal>
       </div>
     </section>

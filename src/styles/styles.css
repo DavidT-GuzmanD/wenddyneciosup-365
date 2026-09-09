@@ -366,6 +366,10 @@ body.lock .burger{background:#fff;border-color:#fff}
 .band p{margin:0;position:relative;z-index:2;font-family:var(--f-disp);font-size:clamp(1.15rem,2.2vw,1.6rem);line-height:1.42;max-width:34ch}
 .band strong{color:var(--gold)}
 .band .btn{position:relative;z-index:2}
+/* Fotografía ilustrativa de la franja: no enlaza a ningún sitio, así que
+   tampoco lleva estados de interacción. */
+.band__img{position:relative;z-index:2;display:block;flex:none;height:auto;
+  width:clamp(240px,42%,420px);border-radius:var(--r-m);box-shadow:var(--sh-l)}
 
 /* ---------- Podcast ---------- */
 .sec--pod{background:var(--ink);color:rgba(255,255,255,.76);position:relative;overflow:hidden}
