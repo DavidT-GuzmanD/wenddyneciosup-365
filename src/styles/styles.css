@@ -186,19 +186,24 @@ body.lock .burger{background:#fff;border-color:#fff}
 .drawer__foot a:hover{background:var(--coral);border-color:var(--coral);transform:translateY(-3px)}
 
 /* ---------- HERO ---------- */
-.hero{position:relative;padding:clamp(140px,17vw,190px) 0 clamp(70px,8vw,110px);overflow:hidden}
-.hero__bg{position:absolute;inset:0;z-index:0;pointer-events:none}
+.hero{position:relative;padding:clamp(118px,12vw,148px) 0 clamp(66px,7vw,96px);overflow:hidden;
+  background:var(--cream);min-height:min(78vh,700px);display:flex;align-items:center}
+/* La foto va en su propia capa, más alta que la sección, para que el
+   desplazamiento por parallax no descubra los bordes. */
+.hero__photo{position:absolute;inset:0 0 -18%;z-index:0;pointer-events:none;will-change:transform;
+  background:url("/assets/img/hero-wenddy.jpg") no-repeat 56% center/cover}
+/* Velo cálido por la izquierda, justo donde la foto deja aire, para que el
+   texto se lea sin apagar la imagen. */
+.hero__veil{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(100deg,var(--cream) 0%,rgba(252,248,245,.97) 28%,rgba(252,248,245,.8) 42%,rgba(252,248,245,.34) 58%,rgba(252,248,245,.04) 74%,transparent 86%)}
 .blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.62;will-change:transform}
 .blob--1{width:44vw;height:44vw;left:-12vw;top:-8vw;background:radial-gradient(circle,rgba(242,84,94,.42),transparent 66%);animation:drift 22s ease-in-out infinite}
 .blob--2{width:38vw;height:38vw;right:-8vw;top:6vw;background:radial-gradient(circle,rgba(224,178,101,.44),transparent 66%);animation:drift 26s ease-in-out infinite reverse}
 .blob--3{width:30vw;height:30vw;left:32vw;bottom:-14vw;background:radial-gradient(circle,rgba(255,138,128,.3),transparent 66%);animation:drift 30s ease-in-out infinite}
 @keyframes drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(4vw,-3vw) scale(1.09)}66%{transform:translate(-3vw,3vw) scale(.94)}}
-.grid-dots{position:absolute;inset:0;opacity:.4;
-  background-image:radial-gradient(rgba(43,29,34,.14) 1px,transparent 1px);background-size:26px 26px;
-  -webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 40%,#000,transparent 78%);
-  mask-image:radial-gradient(ellipse 70% 60% at 50% 40%,#000,transparent 78%);}
 
-.hero__in{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1.02fr;gap:clamp(30px,4vw,70px);align-items:center}
+.hero__in{position:relative;z-index:2}
+.hero__copy{max-width:min(100%,580px)}
 .hero__lede{font-size:clamp(1.05rem,1.5vw,1.22rem);color:var(--muted);max-width:52ch;margin:26px 0 34px}
 .hero__lede strong{color:var(--text)}
 .hero__cta{display:flex;gap:14px;flex-wrap:wrap}
@@ -213,12 +218,6 @@ body.lock .burger{background:#fff;border-color:#fff}
 .brand--apple:hover{background:#9933CC;color:#fff}
 .brand--amazon:hover{background:#FF9900;color:#fff}
 
-/* La portada manda: el libro ocupa el bloque entero, sobre una luz cálida y
-   difusa, y las etiquetas se ordenan debajo en vez de montarse encima. */
-.hero__art{position:relative;display:flex;flex-direction:column;align-items:center;gap:22px}
-.hero__stage{position:relative;display:grid;place-items:center;width:100%}
-.hero__halo{position:absolute;width:min(112%,760px);aspect-ratio:1;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,255,255,.96),rgba(251,236,233,.72) 42%,transparent 68%);filter:blur(10px)}
 
 /* Aro punteado con su punto de oro. Es la firma visual de la portada del
    libro: aparece detrás de ella tanto en el hero como en «El libro».
@@ -232,18 +231,9 @@ body.lock .burger{background:#fff;border-color:#fff}
 .ring::after{content:"";position:absolute;top:-6px;left:50%;width:11px;height:11px;margin-left:-5px;
   border-radius:50%;background:var(--gold);box-shadow:0 0 16px var(--gold)}
 @keyframes spin{to{transform:rotate(360deg)}}
-.hero__stage .ring-wrap{width:min(94%,580px)}
 .book-visual .ring-wrap{width:min(100%,560px)}
-.tilt{position:relative;z-index:2;width:100%;display:flex;justify-content:center;transform-style:preserve-3d;transition:transform .5s var(--ease)}
-.hero__book{width:min(96%,560px);filter:drop-shadow(0 40px 52px rgba(43,20,28,.22));animation:bob 7s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
-.hero__chips{position:relative;z-index:3;display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
 
-.chip{display:flex;align-items:center;gap:9px;padding:12px 18px;border-radius:99px;
-  background:rgba(255,255,255,.86);backdrop-filter:blur(12px);box-shadow:var(--sh-m);border:1px solid rgba(255,255,255,.9);
-  font-size:.84rem;font-weight:600;white-space:nowrap}
-.chip strong{font-family:var(--f-disp);font-size:1.35rem;color:var(--coral);line-height:1}
-.chip .ico{color:var(--gold);width:1.2em;height:1.2em}
 .float{animation:bob 6s ease-in-out infinite}
 
 .scroll-cue{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:3;
@@ -596,13 +586,14 @@ body.lock .burger{background:#fff;border-color:#fff}
 }
 @media (max-width:900px){
   body{font-size:16px}
-  .hero__in,.grid-2,.digital,.pod,.give,.reto{grid-template-columns:1fr}
+  .grid-2,.digital,.pod,.give,.reto{grid-template-columns:1fr}
   .grid-2--rev .autora__media{order:0}
-  .hero__art{order:-1;margin-bottom:6px;gap:14px}
-  .hero__book{width:min(76%,340px)}
-  .hero__halo{top:-2%;width:120%}
-  .chip{padding:9px 15px;font-size:.78rem}
-  .chip strong{font-size:1.15rem}
+  /* En vertical la autora queda abajo y el cielo arriba, así que el velo va
+     de arriba abajo y el texto se apoya sobre la parte despejada. */
+  .hero{min-height:auto;padding-bottom:clamp(230px,54vw,360px)}
+  .hero__photo{background-image:url("/assets/img/hero-wenddy-movil.jpg");background-size:cover;background-position:center bottom}
+  .hero__veil{background:linear-gradient(180deg,var(--cream) 0%,rgba(252,248,245,.96) 44%,rgba(252,248,245,.78) 58%,rgba(252,248,245,.22) 78%,transparent 92%)}
+  .hero__copy{max-width:none}
   .stats__grid{grid-template-columns:repeat(2,1fr);gap:8px}
   .stat:nth-child(3)::before{display:none}
   .reto{text-align:center}
