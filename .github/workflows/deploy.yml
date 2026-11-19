@@ -1,0 +1,142 @@
+name: Deploy (Coolify)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Evita dos despliegues a la vez; el segundo espera al primero.
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+
+env:
+  COOLIFY_URL: http://100.82.45.37:8000   # panel de Coolify, solo alcanzable por Tailscale
+  COOLIFY_APP_UUID: "p8vl2hrrgm37duqht2fr06hr"            # UUID del recurso en Coolify (no es secreto)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # ---------------------------------------------------------------
+      # PASO 1: los 3 secretos existen (no se imprime ningún valor)
+      # ---------------------------------------------------------------
+      - name: "1. Verificar secretos"
+        env:
+          TS_OAUTH_CLIENT_ID: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          TS_OAUTH_SECRET: ${{ secrets.TS_OAUTH_SECRET }}
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+        run: |
+          missing=0
+          for name in TS_OAUTH_CLIENT_ID TS_OAUTH_SECRET COOLIFY_TOKEN; do
+            if [ -z "${!name}" ]; then
+              echo "::error title=Secreto faltante::El secreto $name no existe o está vacío (Settings > Secrets and variables > Actions)."
+              missing=1
+            fi
+          done
+          [ "$missing" -eq 0 ] || exit 1
+          echo "Los 3 secretos están definidos."
+
+      # ---------------------------------------------------------------
+      # PASO 2: el runner entra a tu red Tailscale
+      # ---------------------------------------------------------------
+      - name: "2. Conectar a Tailscale"
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      # ---------------------------------------------------------------
+      # PASO 3: el runner alcanza el panel de Coolify
+      # ---------------------------------------------------------------
+      - name: "3. Comprobar conexión con Coolify"
+        run: |
+          echo "--- Estado de Tailscale ---"
+          tailscale status || true
+          echo "--- Health de Coolify ---"
+          code=$(curl -sS -m 15 --retry 3 --retry-delay 3 --retry-connrefused \
+            -o /dev/null -w '%{http_code}' "$COOLIFY_URL/api/health" || true)
+          echo "HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "::error title=Sin acceso a Coolify::El runner entró a Tailscale pero no llega a $COOLIFY_URL (HTTP '$code'). Revisa: (a) las ACL permiten tag:ci -> 100.82.45.37:8000, (b) el contenedor de Coolify está arriba, (c) la IP de Tailscale del VPS no cambió."
+            exit 1
+          fi
+
+      # ---------------------------------------------------------------
+      # PASO 4: pedir el despliegue a Coolify
+      # ---------------------------------------------------------------
+      - name: "4. Disparar despliegue en Coolify"
+        env:
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+        run: |
+          code=$(curl -sS -m 30 -o response.json -w '%{http_code}' -X POST \
+            -H "Authorization: Bearer $COOLIFY_TOKEN" \
+            "$COOLIFY_URL/api/v1/deploy?uuid=$COOLIFY_APP_UUID" || true)
+          echo "HTTP $code"
+          echo "--- Respuesta de Coolify ---"
+          cat response.json 2>/dev/null || true
+          echo
+
+          case "$code" in
+            200|201) ;;
+            401) echo "::error title=Token rechazado (401)::COOLIFY_TOKEN está mal copiado, expiró o fue borrado."; exit 1 ;;
+            403) echo "::error title=Sin permiso (403)::El token no tiene el permiso Deploy, o la IP no está en Allowed API IPs."; exit 1 ;;
+            404) echo "::error title=No encontrado (404)::COOLIFY_APP_UUID (definido arriba, en env) no coincide con ninguna app; revisa el UUID en la URL de la app en Coolify."; exit 1 ;;
+            000|"") echo "::error title=Sin respuesta::curl no obtuvo respuesta de Coolify (timeout o conexión rechazada)."; exit 1 ;;
+            *) echo "::error title=Respuesta inesperada::Coolify devolvió HTTP $code. Revisa el cuerpo de la respuesta de arriba."; exit 1 ;;
+          esac
+
+          deployment_uuid=$(jq -r '.deployments[0].deployment_uuid // empty' response.json)
+          if [ -z "$deployment_uuid" ]; then
+            echo "::error title=Sin deployment_uuid::Coolify respondió 200 pero no puso nada en cola. Revisa el cuerpo de la respuesta de arriba."
+            exit 1
+          fi
+
+          {
+            echo "### Despliegue en cola"
+            echo "- Commit: \`${GITHUB_SHA::7}\` en \`${GITHUB_REF_NAME}\`"
+            echo "- Deployment UUID: \`$deployment_uuid\`"
+            echo "- Sigue el progreso en Coolify (por Tailscale): Trinithy > production > wenddy-neciosup > Deployments"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "Despliegue en cola: $deployment_uuid"
+          echo "DEPLOYMENT_UUID=$deployment_uuid" >> "$GITHUB_ENV"
+
+      # ---------------------------------------------------------------
+      # PASO 5: esperar el resultado (el 'en cola' no significa 'desplegado')
+      # Requiere que el token tenga el permiso Read. Si no lo tiene, solo avisa.
+      # ---------------------------------------------------------------
+      - name: "5. Esperar resultado del despliegue"
+        env:
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+        run: |
+          for i in $(seq 1 50); do
+            code=$(curl -sS -m 20 -o status.json -w '%{http_code}' \
+              -H "Authorization: Bearer $COOLIFY_TOKEN" \
+              "$COOLIFY_URL/api/v1/deployments/$DEPLOYMENT_UUID" || true)
+
+            if [ "$code" = "401" ] || [ "$code" = "403" ] || [ "$code" = "404" ]; then
+              echo "::warning title=No puedo verificar el resultado::Coolify respondió HTTP $code al consultar el estado. El despliegue SÍ se puso en cola, pero hay que revisarlo en Coolify. Para verificarlo aquí, crea un token con permisos Deploy y Read."
+              exit 0
+            fi
+
+            status=$(jq -r '.status // empty' status.json 2>/dev/null || true)
+            echo "[$i/50] estado: ${status:-desconocido} (HTTP $code)"
+
+            case "$status" in
+              finished)
+                echo "### Resultado: desplegado correctamente" >> "$GITHUB_STEP_SUMMARY"
+                exit 0 ;;
+              failed|error|cancelled*)
+                echo "::error title=El despliegue falló en Coolify::Estado: $status. Revisa el log en Coolify > Trinithy > production > wenddy-neciosup > Deployments (build de la imagen o arranque de Nginx)."
+                echo "### Resultado: FALLÓ ($status)" >> "$GITHUB_STEP_SUMMARY"
+                exit 1 ;;
+            esac
+            sleep 10
+          done
+          echo "::error title=Tiempo agotado::El despliegue sigue sin terminar después de unos 8 minutos. Revisa Coolify."
+          exit 1
